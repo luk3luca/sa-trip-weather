@@ -1,0 +1,17 @@
+{
+  "name": "sa-trip-weather",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Meteo e itinerario giorno per giorno — Sudafrica 11–19 settembre 2026 (Kruger + Città del Capo)",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "fetch": "node scripts/fetch-weather.mjs"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "vite": "^7.0.0"
+  }
+}
