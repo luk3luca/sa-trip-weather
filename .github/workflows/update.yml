@@ -1,0 +1,62 @@
+name: Weekly data update + deploy
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ['public/data/weather.json'] # il commit del bot non riattiva il workflow
+  schedule:
+    - cron: "0 4 * * 1" # Monday 04:00 UTC — refresh settimanale dei dati
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  update-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # ---- DATA PIPELINE: aggiorna lo snapshot meteo (ECMWF, GFS, GEM, JMA, ICON) ----
+      - name: Fetch weather snapshot
+        run: |
+          node scripts/fetch-weather.mjs || echo "::warning::weather fetch failed, keeping previous snapshot"
+      # ---- END DATA PIPELINE ----
+
+      - name: Commit updated data (if changed)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/data/weather.json
+          if git diff --cached --quiet; then
+            echo "No data changes this week."
+          else
+            git commit -m "[bot] weekly weather snapshot refresh $(date -u +%F)"
+            git push
+          fi
+
+      - name: Build static site
+        run: npm run build # produce dist/ (base './' già configurato in vite.config.ts)
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+      - uses: actions/deploy-pages@v4

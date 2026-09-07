@@ -43,6 +43,17 @@ src/main.ts                 # rendering della pagina
 src/styles.css              # tema scuro
 ```
 
+## Deploy
+
+Sito pubblico su **GitHub Pages**: <https://luk3luca.github.io/sa-trip-weather/>
+
+- Il workflow `.github/workflows/update.yml` rifà lo snapshot meteo e ridistribuisce
+  **ogni lunedì 04:00 UTC** e a ogni push di codice su `main`.
+- Aggiornamento manuale prima della partenza (consigliato il 10–11 settembre):
+  `gh workflow run "Weekly data update + deploy"` oppure push di un commit qualunque.
+- Il commit del refresh dati (`[bot] weekly weather snapshot refresh`) è escluso dal
+  trigger `on: push` (`paths-ignore`) per evitare loop.
+
 ## Note editoriali
 
 Le note e i "verdetti" giornalieri (es. «il 16 a Cape Town è il giorno più piovoso»,
