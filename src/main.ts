@@ -5,6 +5,7 @@ import type {
 } from './types'
 import { DAYS, VERDICTS, type DayPlan } from './trip'
 import { codeInfo, renderHourlyChart, renderDailyOverlay } from './charts'
+import { initTripMap } from './map'
 import { MODEL_ORDER, type ModelId } from './types'
 
 const MONTHS = ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno', 'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre']
@@ -125,6 +126,7 @@ async function boot(): Promise<void> {
       <button class="tab active" data-tab="itinerario" role="tab">🗓️ Itinerario giorno per giorno</button>
       <button class="tab" data-tab="confronto" role="tab">⚖️ Kruger vs Città del Capo</button>
       <button class="tab" data-tab="modelli" role="tab">📊 Modelli a confronto</button>
+      <button class="tab" data-tab="mappa" role="tab">🗺️ Mappa delle mete</button>
       <button class="tab" data-tab="mete" role="tab">📍 Tutte le mete</button>
       <button class="tab" data-tab="fonti" role="tab">📚 Fonti e metodo</button>
     </nav>
@@ -133,6 +135,7 @@ async function boot(): Promise<void> {
       <section id="sec-itinerario" class="pane active"></section>
       <section id="sec-confronto" class="pane"></section>
       <section id="sec-modelli" class="pane"></section>
+      <section id="sec-mappa" class="pane"></section>
       <section id="sec-mete" class="pane"></section>
       <section id="sec-fonti" class="pane"></section>
     </main>
@@ -160,6 +163,7 @@ async function boot(): Promise<void> {
   $('#sec-itinerario')!.innerHTML = sectionItinerario()
   $('#sec-confronto')!.innerHTML = sectionConfronto()
   $('#sec-modelli')!.innerHTML = sectionModelli()
+  $('#sec-mappa')!.innerHTML = sectionMappa()
   $('#sec-mete')!.innerHTML = sectionMete()
   $('#sec-fonti')!.innerHTML = sectionFonti()
   const pz = DATA.window.end
@@ -302,6 +306,13 @@ function sectionConfronto(): string {
     <p class="table-note">Il 17–19 le colonne Kruger sono solo di contesto (sei già al Capo): mostrano che il fronte — con raffiche fino a 90 km/h — arriva sul Lowveld dopo la tua partenza del 16.</p>`
 }
 
+// ---------- sezione mappa ----------
+
+function sectionMappa(): string {
+  return `<div class="intro-note">🗺️ Mappa interattiva delle 11 mete — OpenStreetMap con tema scuro CARTO: nessun cookie, nessuna chiave API. Giallo = Kruger, blu = Città del Capo, grigio = trasferimenti (tratteggiato: voli). Il numero sul ping è il giorno di arrivo; clicca un ping per il meteo della/e giornata/e e il salto al dettaglio.</div>
+    <div class="map-wrap"><div id="trip-map" class="trip-map"></div></div>`
+}
+
 // ---------- sezione confronto modelli ----------
 
 function sectionModelli(): string {
@@ -427,6 +438,11 @@ function wireEvents(): void {
       ACTIVE_TAB = btn.dataset.tab ?? 'itinerario'
       $$('.tab').forEach((b) => b.classList.toggle('active', b === btn))
       $$('.pane').forEach((p) => p.classList.toggle('active', p.id === `sec-${ACTIVE_TAB}`))
+      if (ACTIVE_TAB === 'mappa' && DATA) {
+        // La mappa va inizializzata a contenitore visibile (larghezza/altezza reali)
+        const data = DATA
+        requestAnimationFrame(() => initTripMap(data, $('#trip-map')!))
+      }
     })
   })
 
