@@ -367,6 +367,17 @@ code {
 .ov-charts { display: flex; flex-direction: column; gap: 10px; }
 .ov-charts .hchart { max-width: 100%; }
 
+.chart-extrema {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--muted);
+  margin: 3px 0 7px;
+}
+.chart-extrema b { color: var(--text); font-size: 13.5px; }
+.chart-extrema .dim { font-size: 10.5px; color: var(--muted); margin-left: 4px; }
+
 .chart-host { overflow-x: auto; }
 .chart-empty { color: var(--muted); font-size: 12.5px; font-style: italic; margin: 8px 0; }
 

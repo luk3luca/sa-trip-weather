@@ -8,7 +8,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "fetch": "node scripts/fetch-weather.mjs"
+    "fetch": "node scripts/fetch-weather.mjs",
+    "validate": "node scripts/validate-weather.mjs"
   },
   "devDependencies": {
     "@types/leaflet": "^1.9.22",

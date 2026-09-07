@@ -104,6 +104,10 @@ export function renderHourlyChart(host: HTMLElement, hr: HourRec, modelLabel: st
   const yG = (v: number) => PLOT_BOTTOM - (v / gMax) * PLOT_H * 0.95
 
   const p: string[] = []
+  // Riepilogo veloce min/max del grafico (24 h del modello selezionato)
+  const minT = tVals.length ? Math.min(...tVals) : null
+  const maxT = tVals.length ? Math.max(...tVals) : null
+  p.push(`<div class="chart-extrema">🌡️ Min <b>${minT === null ? '—' : Math.round(minT)}°</b> · Max <b>${maxT === null ? '—' : Math.round(maxT)}°</b><span class="dim">24 ore · ${modelLabel}</span></div>`)
   p.push(`<svg class="hchart" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Andamento orario temperatura, pioggia e vento">`)
 
   // Griglia verticale ogni 3 ore + etichette

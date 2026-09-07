@@ -48,11 +48,28 @@ src/styles.css              # tema scuro
 Sito pubblico su **GitHub Pages**: <https://luk3luca.github.io/sa-trip-weather/>
 
 - Il workflow `.github/workflows/update.yml` rifà lo snapshot meteo e ridistribuisce
-  **ogni lunedì 04:00 UTC** e a ogni push di codice su `main`.
-- Aggiornamento manuale prima della partenza (consigliato il 10–11 settembre):
-  `gh workflow run "Weekly data update + deploy"` oppure push di un commit qualunque.
+  **ogni lunedì 04:00 UTC**, **ogni giorno alle 05:00 UTC dall'8 al 19 settembre**
+  (run-up + viaggio) e a ogni push di codice su `main`.
+- Aggiornamento manuale quando vuoi: `gh workflow run "Weekly data update + deploy"`.
 - Il commit del refresh dati (`[bot] weekly weather snapshot refresh`) è escluso dal
   trigger `on: push` (`paths-ignore`) per evitare loop.
+
+### Sicurezza dei dati (perché non si perde mai lo snapshot)
+
+1. **Validazione prima della scrittura**: `scripts/fetch-weather.mjs` valida lo snapshot
+   in memoria (mete presenti, 9 giorni × min/max validi per ECMWF+GFS, 24 ore orarie,
+   temperature in range, nulla di non numerico); se fallisce **non scrive nulla**.
+2. **Scrittura atomica**: il file viene scritto come `weather.json.new` e poi sostituito
+   con `rename` — mai un file troncato a metà sul path finale.
+3. **Gate in CI**: `npm run validate` (scripts/validate-weather.mjs) ricontrolla il file
+   su disco prima di commit e deploy. Se fallisce, il job si ferma: niente commit,
+   niente deploy, e **GitHub Pages continua a servire l'ultimo deploy valido**.
+4. **Fetch fallito ≠ dati persi**: la rete può andare giù — in quel caso resta lo
+   snapshot precedente e il sito viene ridistribuito com'era.
+5. **Git come backup**: ogni snapshot buono è committato; recupero istantaneo con
+   `git checkout -- public/data/weather.json` (o da un commit precedente).
+
+Comandi locali: `npm run fetch` · `npm run validate` · `node scripts/validate-weather.mjs <file>`
 
 ## Note editoriali
 

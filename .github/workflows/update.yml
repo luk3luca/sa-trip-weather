@@ -6,6 +6,7 @@ on:
     paths-ignore: ['public/data/weather.json'] # il commit del bot non riattiva il workflow
   schedule:
     - cron: "0 4 * * 1" # Monday 04:00 UTC — refresh settimanale dei dati
+    - cron: "0 5 8-19 9 *" # 8–19 settembre, ogni giorno 05:00 UTC — run-up + viaggio
   workflow_dispatch: {}
 
 permissions:
@@ -33,9 +34,17 @@ jobs:
         run: npm ci
 
       # ---- DATA PIPELINE: aggiorna lo snapshot meteo (ECMWF, GFS, GEM, JMA, ICON) ----
-      - name: Fetch weather snapshot
+      # Sicurezza: il fetch valida in memoria e scrive con sostituzione atomica (tmp+rename):
+      # se qualcosa va storto, public/data/weather.json resta quello precedente e il
+      # deploy prosegue con l'ultimo snapshot buono.
+      - name: Fetch weather snapshot (atomic, validate before replace)
         run: |
-          node scripts/fetch-weather.mjs || echo "::warning::weather fetch failed, keeping previous snapshot"
+          npm run fetch || echo "::warning::fetch fallito: mantenuto lo snapshot precedente"
+
+      # Gate di integrità sul file su disco: se fallisce, niente commit e niente deploy
+      # (GitHub Pages mantiene l'ultimo deploy valido — il sito non va mai offline).
+      - name: Validate weather.json (gate)
+        run: npm run validate
       # ---- END DATA PIPELINE ----
 
       - name: Commit updated data (if changed)

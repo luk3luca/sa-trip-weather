@@ -7,9 +7,10 @@
  * Nota: le coordinate dei punti non urbani sono indicative (±1 km): la griglia
  *       dei modelli è ~25 km, la precisione locale è comunque limitata.
  */
-import { writeFileSync, mkdirSync } from 'node:fs'
+import { writeFileSync, mkdirSync, renameSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { validateWeather } from './validate-weather.mjs'
 
 const OUT = join(dirname(fileURLToPath(import.meta.url)), '..', 'public', 'data', 'weather.json')
 const WINDOW = { start: '2026-09-11', end: '2026-09-19' }
@@ -184,6 +185,23 @@ for (const s of STOPS) {
   out.stops.push(stopOut)
 }
 
+// Validazione in memoria: se fallisce NON si tocca il file (lo snapshot precedente resta).
+const { errors, warnings } = validateWeather(out)
+if (warnings.length) console.warn(`⚠️ ${warnings.length} avviso/i di validazione`)
+if (errors.length) {
+  console.error(`❌ VALIDAZIONE FALLITA (${errors.length}) — file NON scritto, resta lo snapshot precedente:`)
+  for (const e of errors) console.error(`  - ${e}`)
+  process.exit(1)
+}
+
+// Scrittura atomica: tmp + rename → mai un file a metà sul path finale.
 mkdirSync(dirname(OUT), { recursive: true })
-writeFileSync(OUT, JSON.stringify(out))
+const TMP = `${OUT}.new`
+writeFileSync(TMP, JSON.stringify(out))
+renameSync(TMP, OUT)
+
 console.log(`\nScritto ${OUT} (${(JSON.stringify(out).length / 1024).toFixed(0)} KB) — snapshot ${out.fetchedAt}`)
+console.log('Copertura modelli:')
+for (const [id, m] of Object.entries(out.models)) {
+  console.log(`  - ${m.label.padEnd(22)} giornaliero ≤ ${m.horizonDaily ?? '—'} · orario ≤ ${m.horizonHourly ?? '—'}`)
+}
