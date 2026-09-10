@@ -6,11 +6,16 @@
  * Uso:  npm run fetch
  * Nota: le coordinate dei punti non urbani sono indicative (±1 km): la griglia
  *       dei modelli è ~25 km, la precisione locale è comunque limitata.
+ * Aggiornamento NON distruttivo: i giorni che escono dalla finestra previsionale
+ *       (ormai passati) vengono ereditati dallo snapshot precedente — vedi
+ *       scripts/merge-snapshot.mjs. Se non c'è nessun giorno nuovo, il file
+ *       resta invariato (niente commit inutili a viaggio concluso).
  */
-import { writeFileSync, mkdirSync, renameSync } from 'node:fs'
+import { writeFileSync, readFileSync, mkdirSync, renameSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { validateWeather } from './validate-weather.mjs'
+import { mergeSnapshots } from './merge-snapshot.mjs'
 
 const OUT = join(dirname(fileURLToPath(import.meta.url)), '..', 'public', 'data', 'weather.json')
 const WINDOW = { start: '2026-09-11', end: '2026-09-19' }
@@ -40,16 +45,19 @@ const MODELS = {
 
 // id, nome, zona, tipo, lat, lon, coordinate indicative?, ruolo nell'itinerario
 const STOPS = [
-  { id: 'jnb', name: 'Johannesburg · OR Tambo', zone: 'transito', kind: 'aeroporto', lat: -26.139, lon: 28.246, approx: false, role: '12 · arrivo 6:30 — 19 · volo 22:00 per l’Italia' },
-  { id: 'blyde', name: 'Blyde Canyon · Three Rondavels', zone: 'kruger', kind: 'belvedere', lat: -24.563, lon: 30.807, approx: true, role: '12 · tappa panoramica (~4,5–5 h da JNB)' },
-  { id: 'hazyview', name: 'Hazyview', zone: 'kruger', kind: 'paese', lat: -25.044, lon: 31.127, approx: true, role: '12 · pernottamento (porta del Kruger)' },
+  { id: 'jnb', name: 'Johannesburg · OR Tambo', zone: 'transito', kind: 'aeroporto', lat: -26.139, lon: 28.246, approx: false, role: '12 · arrivo 9:00 — 19 · volo 22:00 per l’Italia' },
+  { id: 'blyde', name: 'Blyde Canyon · Three Rondavels', zone: 'kruger', kind: 'belvedere', lat: -24.563, lon: 30.807, approx: true, role: '12 · Three Rondavels (Blyde Canyon)' },
+  { id: 'potholes', name: 'Bourke’s Luck Potholes', zone: 'kruger', kind: 'belvedere', lat: -24.689, lon: 30.843, approx: true, role: '12 · escursione nel Blyde Canyon' },
+  { id: 'godswindow', name: 'God’s Window', zone: 'kruger', kind: 'belvedere', lat: -24.878, lon: 30.907, approx: true, role: '12 · belvedere sull’escarpment' },
+  { id: 'numbi', name: 'Numbi Hotel & Garden Suite', zone: 'kruger', kind: 'hotel', lat: -25.095, lon: 31.029, approx: true, role: '12 · pernottamento (porta del Kruger)' },
   { id: 'phabeni', name: 'Phabeni Gate', zone: 'kruger', kind: 'ingresso parco', lat: -25.024, lon: 31.151, approx: true, role: '13 · ingresso nel Kruger National Park' },
   { id: 'skukuza', name: 'Skukuza Rest Camp', zone: 'kruger', kind: 'campo SANParks', lat: -24.981, lon: 31.591, approx: true, role: '13 · safari + Night Drive al tramonto' },
-  { id: 'lowersabie', name: 'Lower Sabie Rest Camp', zone: 'kruger', kind: 'campo SANParks', lat: -25.125, lon: 31.917, approx: true, role: '14 · Morning Walk + Sunset Dam' },
+  { id: 'lowersabie', name: 'Lower Sabie Rest Camp', zone: 'kruger', kind: 'campo SANParks', lat: -25.125, lon: 31.917, approx: true, role: '14 · Guided Sunset + Sunset Dam' },
   { id: 'satara', name: 'Satara Rest Camp', zone: 'kruger', kind: 'campo SANParks', lat: -24.391, lon: 31.781, approx: true, role: '15 · praterie e big cats + Sunset Drive' },
   { id: 'hoedspruit', name: 'Hoedspruit · Eastgate Apt', zone: 'kruger', kind: 'aeroporto', lat: -24.368, lon: 31.049, approx: true, role: '16 · volo 14:00 → Città del Capo' },
   { id: 'capetown', name: 'Città del Capo', zone: 'cape', kind: 'città', lat: -33.925, lon: 18.424, approx: false, role: '16 sera – 19 · base al Capo' },
-  { id: 'tablemountain', name: 'Table Mountain', zone: 'cape', kind: 'belvedere', lat: -33.962, lon: 18.41, approx: true, role: '17/19 · funivia (consigliata mattina del 19)' },
+  { id: 'tablemountain', name: 'Table Mountain', zone: 'cape', kind: 'belvedere', lat: -33.962, lon: 18.41, approx: true, role: '17 · funivia (opzionale se il tempo regge)' },
+  { id: 'kirstenbosch', name: 'Kirstenbosch National Botanical Garden', zone: 'cape', kind: 'giardino', lat: -33.988, lon: 18.432, approx: true, role: '19 · mattina nei giardini prima del volo' },
   { id: 'capepoint', name: 'Cape Point · Capo di Buona Speranza', zone: 'cape', kind: 'belvedere', lat: -34.356, lon: 18.497, approx: true, role: '18 · tour penisola (giornata intera)' },
 ]
 
@@ -183,6 +191,41 @@ for (const s of STOPS) {
   }
   stopOut.elevation = elevation
   out.stops.push(stopOut)
+}
+
+// ---- Rollover non distruttivo ----
+// I giorni usciti dalla finestra (ormai nel passato) non vengono più restituiti
+// dai modelli: si ereditano dallo snapshot precedente così, durante il viaggio,
+// i giorni passati restano visibili e la validazione copre sempre l'intera
+// finestra. I dati freschi vincono sempre; se non c'è NULLA di nuovo (finestra
+// tutta passata) il file resta invariato e la CI non produce commit.
+const freshDays = new Set()
+for (const byDate of Object.values(out.daily)) {
+  for (const [date, slot] of Object.entries(byDate)) {
+    if (Object.keys(slot).some((k) => k !== 'astro')) freshDays.add(date)
+  }
+}
+let prev = null
+try {
+  prev = JSON.parse(readFileSync(OUT, 'utf8'))
+  if (!Array.isArray(prev?.stops) || prev.stops.length === 0) prev = null
+} catch {
+  /* nessuno snapshot precedente (primo run): si procede solo col fetch */
+}
+
+if (prev && freshDays.size === 0) {
+  console.log(
+    '\n⏸️  La finestra è interamente nel passato: i modelli non coprono più nessun giorno nuovo. File invariato, nessun commit necessario.',
+  )
+  process.exit(0)
+}
+if (prev) {
+  const { days } = mergeSnapshots(out, prev)
+  console.log(
+    days.length
+      ? `\n↺ Rollover: ${days.length} giorno/i ereditato/i dallo snapshot precedente (${prev.fetchedAt ?? 'n/d'}): ${days.join(', ')}`
+      : '\n↺ Rollover: nessun giorno da ereditare (copertura completa dal fetch).',
+  )
 }
 
 // Validazione in memoria: se fallisce NON si tocca il file (lo snapshot precedente resta).

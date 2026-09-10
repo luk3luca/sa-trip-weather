@@ -67,4 +67,5 @@ export interface WeatherFile {
   stops: StopDef[]
   daily: DailyMap
   hourly: HourlyMap
+  carried?: { from: string | null; days: string[] } // giorni ereditati dallo snapshot precedente (rollover)
 }

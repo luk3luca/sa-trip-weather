@@ -1,8 +1,9 @@
 # Sa Trip Weather — Sudafrica 11–19 settembre 2026
 
 Sito statico (Vite + TypeScript vanilla) che raccoglie il meteo **giorno per giorno e ora per ora**
-dell'itinerario in Sudafrica: Kruger (Blyde Canyon, Hazyview/Phabeni, Skukuza, Lower Sabie,
-Satara, Hoedspruit) e Città del Capo (città, Table Mountain, Cape Point), più Johannesburg
+dell'itinerario in Sudafrica: Kruger (Blyde Canyon con Bourke's Luck e God's Window, Numbi/Phabeni,
+Skukuza, Lower Sabie, Satara, Hoedspruit) e Città del Capo (città, giardini di Kirstenbosch,
+Cape Point), più Johannesburg
 per arrivo e rientro.
 
 ## Comandi
@@ -66,7 +67,13 @@ Sito pubblico su **GitHub Pages**: <https://luk3luca.github.io/sa-trip-weather/>
    niente deploy, e **GitHub Pages continua a servire l'ultimo deploy valido**.
 4. **Fetch fallito ≠ dati persi**: la rete può andare giù — in quel caso resta lo
    snapshot precedente e il sito viene ridistribuito com'era.
-5. **Git come backup**: ogni snapshot buono è committato; recupero istantaneo con
+5. **Rollover non distruttivo dei giorni passati**: quando un giorno esce dalla
+   finestra del fetch (ormai nel passato, i modelli non lo restituiscono più), lo
+   snapshot nuovo **eredita** quel giorno dallo snapshot precedente — niente buchi
+   e niente giorni persi durante il viaggio (dettagli in `scripts/merge-snapshot.mjs`).
+   Il fetch scrive solo se esiste almeno un giorno nuovo; a viaggio concluso, con
+   la finestra tutta passata, il file resta invariato (nessun commit inutile).
+6. **Git come backup**: ogni snapshot buono è committato; recupero istantaneo con
    `git checkout -- public/data/weather.json` (o da un commit precedente).
 
 Comandi locali: `npm run fetch` · `npm run validate` · `node scripts/validate-weather.mjs <file>`
@@ -74,5 +81,5 @@ Comandi locali: `npm run fetch` · `npm run validate` · `node scripts/validate-
 ## Note editoriali
 
 Le note e i "verdetti" giornalieri (es. «il 16 a Cape Town è il giorno più piovoso»,
-«Table Mountain meglio la mattina del 19») sono stati scritti a partire dall'analisi dei modelli
+«giardini di Kirstenbosch la mattina del 19») sono stati scritti a partire dall'analisi dei modelli
 del 7 settembre 2026 e vivono in `src/trip.ts`: se la previsione cambia molto, aggiorna lì i testi.
