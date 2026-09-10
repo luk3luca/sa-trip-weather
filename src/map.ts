@@ -80,7 +80,7 @@ export function initTripMap(data: WeatherFile, container: HTMLElement): void {
   }
 
   // Linee di percorso: tappe del Kruger, penisola del Capo, volo di ritorno
-  const kIds = ['jnb', 'blyde', 'hazyview', 'phabeni', 'skukuza', 'lowersabie', 'satara', 'hoedspruit']
+  const kIds = ['jnb', 'blyde', 'potholes', 'godswindow', 'numbi', 'phabeni', 'skukuza', 'lowersabie', 'satara', 'hoedspruit']
   const cIds = ['capetown', 'tablemountain', 'capepoint', 'capetown']
   const kPts = kIds.map(latLng).filter((p): p is L.LatLngExpression => p !== null)
   const cPts = cIds.map(latLng).filter((p): p is L.LatLngExpression => p !== null)

@@ -20,6 +20,8 @@ const KIND_ICON: Record<string, string> = {
   'aeroporto': '✈️',
   'belvedere': '🏞️',
   'paese': '🏘️',
+  'hotel': '🏨',
+  'giardino': '🌿',
   'ingresso parco': '🦏',
   'campo SANParks': '🏕️',
   'città': '🏙️',
@@ -309,7 +311,7 @@ function sectionConfronto(): string {
 // ---------- sezione mappa ----------
 
 function sectionMappa(): string {
-  return `<div class="intro-note">🗺️ Mappa interattiva delle 11 mete — OpenStreetMap con tema scuro CARTO: nessun cookie, nessuna chiave API. Giallo = Kruger, blu = Città del Capo, grigio = trasferimenti (tratteggiato: voli). Il numero sul ping è il giorno di arrivo; clicca un ping per il meteo della/e giornata/e e il salto al dettaglio.</div>
+  return `<div class="intro-note">🗺️ Mappa interattiva delle ${DATA!.stops.length} mete — OpenStreetMap con tema scuro CARTO: nessun cookie, nessuna chiave API. Giallo = Kruger, blu = Città del Capo, grigio = trasferimenti (tratteggiato: voli). Il numero sul ping è il giorno di arrivo; clicca un ping per il meteo della/e giornata/e e il salto al dettaglio.</div>
     <div class="map-wrap"><div id="trip-map" class="trip-map"></div></div>`
 }
 
@@ -374,7 +376,7 @@ function sectionMete(): string {
       <div class="mstrip" title="Clicca un giorno per vederne il dettaglio">${cells}</div>
     </div>`
   }).join('')
-  return `<div class="intro-note">📍 Le 11 mete del viaggio, con l’estratto meteo dei 9 giorni (clicca una casella per saltare al dettaglio). Le coordinate dei punti non urbani sono indicative: la griglia dei modelli è di ~25 km.</div>
+  return `<div class="intro-note">📍 Le ${DATA!.stops.length} mete del viaggio, con l’estratto meteo dei 9 giorni (clicca una casella per saltare al dettaglio). Le coordinate dei punti non urbani sono indicative: la griglia dei modelli è di ~25 km.</div>
     <div class="meta-grid">${cards}</div>`
 }
 

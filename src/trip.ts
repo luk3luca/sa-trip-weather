@@ -35,11 +35,11 @@ export const DAYS: DayPlan[] = [
     zoneLabel: 'In volo',
     route: 'Italia → Johannesburg (volo notturno)',
     intro: [
-      'Partenza dall’Italia in serata: volo notturno con arrivo a Johannesburg sabato alle 6:30.',
+      'Partenza dall’Italia in serata: volo notturno con arrivo a Johannesburg sabato alle 9:00.',
       'Nessuna sosta in Sudafrica oggi: il sito è pronto per le prossime giornate.',
     ],
     tips: [
-      { icon: '🛏️', text: 'Posti comodi e tappi: arrivo alle 6:30 e alle 8:00 si è già al noleggio auto.' },
+      { icon: '🛏️', text: 'Posti comodi e tappi: arrivo alle 9:00 e alle 10:00 si è già al noleggio auto.' },
     ],
     stopIds: [],
     mainStop: null,
@@ -49,17 +49,17 @@ export const DAYS: DayPlan[] = [
     dow: 'Sabato',
     title: 'Arrivo a Johannesburg + Blyde River Canyon',
     zoneLabel: 'Kruger',
-    route: 'OR Tambo → Three Rondavels (~4,5–5 h) → Hazyview (1 h)',
+    route: 'OR Tambo → Three Rondavels (~4,5–5 h) → Bourke’s Luck · God’s Window → Numbi (1 h)',
     intro: [
-      '06:30 atterraggio a OR Tambo · ritiro del 4×4 (€100 a testa) e partenza ~08:00 verso il Blyde River Canyon.',
-      'Sosta panoramica ai Three Rondavels, poi un’ora fino a Hazyview, dove si pernotta.',
-      'Sulla scarpata del canyon (~1.000 m) fa più fresco che nel bushveld: 5–6 °C in meno rispetto a Hazyview.',
+      '09:00 atterraggio a OR Tambo · ritiro del 4×4 (€100 a testa) e partenza ~10:00 verso il Blyde River Canyon.',
+      'Sosta panoramica ai Three Rondavels, poi Bourke’s Luck Potholes e God’s Window, e un’ora fino a Numbi Hotel & Garden Suite, dove si pernotta.',
+      'Sulla scarpata del canyon (~1.000 m) fa più fresco che nel bushveld: 5–6 °C in meno rispetto a Numbi.',
     ],
     tips: [
-      { icon: '🧥', text: 'Pile a portata di mano: a Johannesburg alle 6:30 ci sono ~9–10 °C.' },
-      { icon: '🌤️', text: 'Il pomeriggio ai Three Rondavels è in genere il momento più limpido.' },
+      { icon: '🧥', text: 'Pile a portata di mano: a Johannesburg alle 9:00 ci sono ~9–10 °C.' },
+      { icon: '🌤️', text: 'Il pomeriggio ai belvederi del Blyde è in genere il momento più limpido.' },
     ],
-    stopIds: ['jnb', 'blyde', 'hazyview'],
+    stopIds: ['jnb', 'blyde', 'potholes', 'godswindow', 'numbi'],
     mainStop: 'blyde',
   },
   {
@@ -83,16 +83,16 @@ export const DAYS: DayPlan[] = [
   {
     date: '2026-09-14',
     dow: 'Lunedì',
-    title: 'H4-1 → Lower Sabie · Morning Walk',
+    title: 'H4-1 → Lower Sabie · Guided Sunset',
     zoneLabel: 'Kruger',
     route: 'Skukuza → H4-1 → Lower Sabie Rest Camp (~3 h a 25 km/h)',
     intro: [
       'Mattina: guida lungo la strada H4-1 verso Lower Sabie, con soste di avvistamento.',
-      'Da prenotare: Guided Morning Walk SANParks (30–40 €). Sosta a Sunset Dam per ippopotami e coccodrilli, pernottamento a Lower Sabie (vista fiume).',
+      'Da prenotare: Guided Sunset SANParks (30–40 €). Sosta a Sunset Dam per ippopotami e coccodrilli, pernottamento a Lower Sabie (vista fiume).',
       'È il giorno col rischio pioggia più alto del soggiorno al Kruger (1–3 mm, probabilità ~25%): ma resta una pioviggine leggera, non un acquazzone.',
     ],
     tips: [
-      { icon: '🌦️', text: 'Giacca impermeabile nello zaino per il Morning Walk di prima mattina.' },
+      { icon: '🌇', text: 'Pile leggero e macchina fotografica per il Guided Sunset sul fiume.' },
       { icon: '🔄', text: 'Divergenza modelli: GFS vede sole e 32–33 °C. Vale la pena ricontrollare a 48 h.' },
     ],
     stopIds: ['skukuza', 'lowersabie'],
@@ -142,7 +142,7 @@ export const DAYS: DayPlan[] = [
     intro: [
       'Giornata in città, dopo la notte a Cape Town.',
       'È la giornata più debole al Capo: residui del fronte al mattino, fresco e ventilato. I modelli divergono: ECMWF vede 18 °C e miglioramento, GFS 14 °C con vento forte.',
-      'Niente Table Mountain oggi: nuvole e vento rovinerebbero la vista. La funivia è meglio sabato mattina.',
+      'Niente Table Mountain oggi: nuvole e vento rovinerebbero la vista. La mattina del 19 sarà dedicata ai giardini di Kirstenbosch.',
     ],
     tips: [
       { icon: '🏛️', text: 'Piano indoor flessibile; se esce il sole, punta a Signal Hill o ai Giardini della Compagnia.' },
@@ -170,20 +170,20 @@ export const DAYS: DayPlan[] = [
   {
     date: '2026-09-19',
     dow: 'Sabato',
-    title: 'Mattina libera · Table Mountain · rientro',
+    title: 'Mattina: giardini di Kirstenbosch · rientro',
     zoneLabel: 'Città del Capo',
-    route: 'Cape Town → OR Tambo (15:00–17:00) → Italia (22:00)',
+    route: 'Cape Town (giardini) → OR Tambo (15:00–17:00) → Italia (22:00)',
     intro: [
-      'Mattina: l’appuntamento meteo migliore del soggiorno al Capo — sole e 25–26 °C secondo ECMWF. Consigliata la Table Mountain in mattinata, con la funivia e il cielo pulito.',
+      'Mattina: l’appuntamento meteo migliore del soggiorno al Capo — sole e 25–26 °C secondo ECMWF. Giro dei giardini botanici di Kirstenbosch, alle pendici della Table Mountain.',
       '15:00–17:00 volo Cape Town → Johannesburg (€60); alle 22:00 decollo per l’Italia.',
       'La serata a Johannesburg è fredda: ~10 °C alle 22:00 sull’altopiano.',
     ],
     tips: [
-      { icon: '🚠', text: 'Table Mountain di prima mattina: meno vento e vista libera (la "tovaglia" arriva col pomeriggio).' },
+      { icon: '🌿', text: 'Kirstenbosch apre presto e al mattino ha meno visitatori: sole sulle aiuole prima del volo.' },
       { icon: '🧥', text: 'Pile a portata di mano per la serata a JNB e il volo di rientro.' },
     ],
-    stopIds: ['capetown', 'tablemountain', 'jnb'],
-    mainStop: 'tablemountain',
+    stopIds: ['capetown', 'kirstenbosch', 'jnb'],
+    mainStop: 'kirstenbosch',
   },
 ]
 
@@ -210,7 +210,7 @@ export const VERDICTS: Verdict[] = [
     better: 'parita',
     k: 'Nuvoloso, 1–3 mm, 25 °C — giorno col rischio pioggia più alto al Kruger',
     c: 'Nuvole e schiarite, 22–23 °C, pioggia assente',
-    note: 'Pareggio: nessuna zona eccellente, entrambe praticabili. Il Morning Walk a Lower Sabie porta l’impermeabile.',
+    note: 'Pareggio: nessuna zona eccellente, entrambe praticabili. Il Guided Sunset a Lower Sabie chiude la giornata sul fiume.',
   },
   {
     date: '2026-09-15',
@@ -245,6 +245,6 @@ export const VERDICTS: Verdict[] = [
     better: 'cape',
     k: 'Recupero: 22 °C (GFS: ancora piovoso al mattino)',
     c: 'Sole, 25–26 °C, vento debole — migliore del soggiorno',
-    note: 'Capo: mattina di sole per Table Mountain, poi volo di rientro senza intoppi.',
+    note: 'Capo: mattina di sole per i giardini di Kirstenbosch, poi volo di rientro senza intoppi.',
   },
 ]
